@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  @apply font-sans;
+}
+
+body {
+  @apply bg-light text-gray-900 dark:bg-dark dark:text-light;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-200 dark:bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 dark:bg-gray-600 rounded-full hover:bg-gray-500;
+}
+
+/* Custom utilities */
+.btn-primary {
+  @apply px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-light rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors font-medium;
+}
+
+.card {
+  @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-all hover:shadow-lg;
+}
+
+.badge {
+  @apply inline-block px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100;
+}
+
+.badge-success {
+  @apply bg-green-100 dark:bg-green-900 text-green-900 dark:text-green-100;
+}
+
+.badge-warning {
+  @apply bg-yellow-100 dark:bg-yellow-900 text-yellow-900 dark:text-yellow-100;
+}
+
+.badge-error {
+  @apply bg-red-100 dark:bg-red-900 text-red-900 dark:text-red-100;
+}
+
+.input-field {
+  @apply w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-light placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+.input-field::placeholder {
+  text-indent: 0.25rem;
+}
+
+.input-field.pl-16::placeholder,
+.input-field.pl-20::placeholder {
+  text-indent: 1.25rem;
+}
+
+.loading {
+  @apply animate-pulse;
+}
+
+.gradient-text {
+  @apply bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent;
+}
