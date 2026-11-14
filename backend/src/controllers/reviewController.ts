@@ -126,7 +126,7 @@ export const getAllReviews = async (req: Request, res: Response) => {
       attributes: ['id', 'appId', 'userId', 'rating', 'comment', 'status', 'createdAt'],
       include: [
         { association: 'reviewer', attributes: ['fullName', 'email'] },
-        { model: App, attributes: ['name'] },
+        { model: App, attributes: ['id', 'title'] },
       ],
       order: [['createdAt', 'DESC']],
       limit: Number(limit),

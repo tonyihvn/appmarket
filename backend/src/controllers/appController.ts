@@ -130,6 +130,37 @@ export const getApps = async (req: Request, res: Response) => {
   }
 };
 
+// Admin: Get all apps, including drafts and archived listings
+export const getAllAppsAdmin = async (req: Request, res: Response) => {
+  try {
+    const { limit = 1000, skip = 0 } = req.query;
+    const { count, rows: apps } = await App.findAndCountAll({
+      include: [
+        { model: User, as: 'publisher', attributes: ['id', 'fullName', 'email'] },
+        { model: Category, attributes: ['id', 'name', 'slug'] },
+      ],
+      order: [['createdAt', 'DESC']],
+      limit: Number(limit),
+      offset: Number(skip),
+    });
+
+    const transformedApps = apps.map((app) => {
+      const appData = app.toJSON() as any;
+      appData._id = appData.id;
+      if (appData.Category) {
+        appData.category = { ...appData.Category, _id: appData.Category.id };
+        delete appData.Category;
+      }
+      return appData;
+    });
+
+    res.status(200).json({ success: true, count: transformedApps.length, total: count, apps: transformedApps });
+  } catch (error) {
+    console.error('Error fetching apps for admin:', error);
+    res.status(500).json({ success: false, message: 'Server error', error });
+  }
+};
+
 // Get single app
 export const getApp = async (req: Request, res: Response) => {
   try {
@@ -232,7 +263,8 @@ export const createApp = async (req: AuthRequest, res: Response) => {
       liveDemo,
       documentation,
       tags: tags || [],
-      status: 'published',
+      status: req.user?.isAdmin ? req.body.status || 'published' : 'published',
+      featured: req.user?.isAdmin ? Boolean(req.body.featured) : false,
     });
 
     // Increment category app count
@@ -272,7 +304,38 @@ export const updateApp = async (req: AuthRequest, res: Response) => {
       return res.status(403).json({ success: false, message: 'Not authorized to update this app' });
     }
 
-    await app.update(req.body);
+    const updates = { ...req.body };
+    if (updates.category !== undefined) {
+      const categoryId = Number(updates.category);
+      const category = Number.isNaN(categoryId)
+        ? await Category.findOne({ where: { slug: updates.category } })
+        : await Category.findByPk(categoryId);
+      if (!category) {
+        return res.status(400).json({ success: false, message: 'Invalid category' });
+      }
+      updates.categoryId = category.id;
+      delete updates.category;
+    }
+    if (updates.deploymentMethods !== undefined && updates.deploymentMethod === undefined) {
+      updates.deploymentMethod = updates.deploymentMethods;
+    }
+    delete updates.deploymentMethods;
+
+    if (updates.categoryId !== undefined && Number(updates.categoryId) !== Number(app.categoryId)) {
+      const previousCategory = await Category.findByPk(app.categoryId);
+      const nextCategory = await Category.findByPk(updates.categoryId);
+      if (!nextCategory) {
+        return res.status(400).json({ success: false, message: 'Invalid category' });
+      }
+      if (previousCategory) {
+        previousCategory.appCount = Math.max(0, (previousCategory.appCount || 1) - 1);
+        await previousCategory.save();
+      }
+      nextCategory.appCount = (nextCategory.appCount || 0) + 1;
+      await nextCategory.save();
+    }
+
+    await app.update(updates);
 
     res.status(200).json({
       success: true,

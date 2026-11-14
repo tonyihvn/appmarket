@@ -292,6 +292,10 @@ export const getAllAppRequests = async (req: Request, res: Response) => {
 
     const { count, rows: appRequests } = await AppRequest.findAndCountAll({
       where,
+      include: [
+        { model: App, attributes: ['id', 'title'] },
+        { model: User, as: 'requester', attributes: ['id', 'fullName', 'email'] },
+      ],
       order: [['createdAt', 'DESC']],
       limit: Number(limit),
       offset: Number(skip),

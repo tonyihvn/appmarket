@@ -16,6 +16,10 @@ export class User extends Model {
   public rating!: number;
   public reviewCount!: number;
   public badges!: string;
+  public emailVerificationToken?: string;
+  public emailVerificationTokenExpire?: Date;
+  public passwordResetToken?: string;
+  public passwordResetTokenExpire?: Date;
   public createdAt!: Date;
   public updatedAt!: Date;
 
@@ -79,6 +83,22 @@ User.init(
     badges: {
       type: DataTypes.JSON,
       defaultValue: [],
+    },
+    emailVerificationToken: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    emailVerificationTokenExpire: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    passwordResetToken: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    passwordResetTokenExpire: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
   },
   {

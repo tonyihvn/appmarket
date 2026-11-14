@@ -195,17 +195,26 @@ export const getAllBids = async (req: Request, res: Response) => {
 
     const { count, rows: bids } = await Bid.findAndCountAll({
       where,
-      include: [{ model: ProjectRequest }],
+      include: [
+        { model: ProjectRequest, attributes: ['id', 'title', 'budget', 'budgetType'] },
+        { model: User, as: 'bidder', attributes: ['id', 'fullName', 'email', 'userType'] },
+      ],
       order: [['createdAt', 'DESC']],
       limit: Number(limit),
       offset: Number(skip),
     });
 
+    const transformedBids = bids.map((bid) => {
+      const bidData = bid.toJSON() as any;
+      bidData._id = bidData.id;
+      return bidData;
+    });
+
     res.status(200).json({
       success: true,
-      count: bids.length,
+      count: transformedBids.length,
       total: count,
-      bids,
+      bids: transformedBids,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error', error });

@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { protect } from '../middleware/auth';
+import { protect, adminOnly } from '../middleware/auth';
 import {
+  getAllAppsAdmin,
   getApps,
   getApp,
   createApp,
@@ -20,6 +21,13 @@ const router = Router();
  * @access  Public
  */
 router.get('/', getApps);
+
+/**
+ * @route   GET /api/apps/admin/all
+ * @desc    Get all apps, including unpublished apps (admin only)
+ * @access  Private/Admin
+ */
+router.get('/admin/all', protect, adminOnly, getAllAppsAdmin);
 
 /**
  * @route   GET /api/apps/featured
